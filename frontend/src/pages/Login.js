@@ -59,7 +59,10 @@ const Login = () => {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', signInData);
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/auth/login`,
+        signInData
+      );
       localStorage.setItem('token', response.data.token);
       navigate('/');
     } catch (err) {
@@ -81,11 +84,14 @@ const Login = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/register', {
-        name: signUpData.name,
-        email: signUpData.email,
-        password: signUpData.password
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/auth/register`,
+        {
+          name: signUpData.name,
+          email: signUpData.email,
+          password: signUpData.password
+        }
+      );
       localStorage.setItem('token', response.data.token);
       navigate('/');
     } catch (err) {
