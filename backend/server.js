@@ -7,7 +7,10 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ['https://your-vercel-domain.vercel.app', 'http://localhost:3000'],
+  origin: [
+    'https://urban-sustainability-dashboard.netlify.app', // your Netlify URL
+    'http://localhost:3000'
+  ],
   credentials: true
 }));
 app.use(express.json());
