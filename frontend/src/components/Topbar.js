@@ -6,6 +6,9 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+// Set axios base URL globally
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'https://urban-sustainability-dashboard.onrender.com';
+
 const Topbar = () => {
   const [userName, setUserName] = useState('');
   const navigate = useNavigate();
@@ -13,24 +16,21 @@ const Topbar = () => {
   useEffect(() => {
     const fetchUserName = async () => {
       const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const response = await axios.get('http://localhost:5000/api/auth/me', {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          setUserName(response.data.name);
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-          // Handle token expiration or invalid token by logging out
-          handleLogout();
-        }
+      if (!token) return;
+      try {
+        const response = await axios.get('/api/auth/me', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setUserName(response.data.name);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        handleLogout();
       }
     };
-
     fetchUserName();
-  }, []);
+  }, [navigate]);
 
   const getInitials = (name) => {
     if (!name) return 'JD'; // Default initials if name is not available

@@ -42,7 +42,7 @@ const Register = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/register', {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL || 'https://urban-sustainability-dashboard.onrender.com'}/api/auth/register`, {
         name: formData.name,
         email: formData.email,
         password: formData.password,

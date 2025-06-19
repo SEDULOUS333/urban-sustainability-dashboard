@@ -14,6 +14,9 @@ import {
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+// Set axios base URL globally
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'https://urban-sustainability-dashboard.onrender.com';
+
 const Login = () => {
   const [tabValue, setTabValue] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -60,7 +63,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/auth/login`,
+        `/api/auth/login`,
         signInData
       );
       localStorage.setItem('token', response.data.token);
@@ -85,7 +88,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/auth/register`,
+        `/api/auth/register`,
         {
           name: signUpData.name,
           email: signUpData.email,
