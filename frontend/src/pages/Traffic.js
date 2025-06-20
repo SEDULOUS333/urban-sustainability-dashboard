@@ -46,30 +46,28 @@ const Traffic = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+      setError('');
       try {
-        // Mock data for demonstration
-        const mockTrafficData = {
-          congestion: 65,
-          averageSpeed: 35,
-          incidents: 3,
-          timestamp: new Date().toISOString(),
-        };
-
-        const mockHistoricalData = Array.from({ length: 24 }, (_, i) => ({
-          time: `${i}:00`,
-          congestion: Math.floor(Math.random() * 100),
-          averageSpeed: Math.floor(Math.random() * 60) + 20,
-        }));
-
-        setTrafficData(mockTrafficData);
-        setHistoricalData(mockHistoricalData);
+        const apiUrl = process.env.REACT_APP_API_URL || 'https://urban-sustainability-dashboard.onrender.com';
+        const res = await axios.get(`${apiUrl}/api/traffic`);
+        if (res.data && res.data.length > 0) {
+          setTrafficData(res.data[0]);
+          setHistoricalData(res.data.map(t => ({
+            time: new Date(t.timestamp).toLocaleTimeString(),
+            congestion: t.congestionLevel,
+            averageSpeed: t.vehicleCount // or another field if available
+          })));
+        } else {
+          setTrafficData(null);
+          setHistoricalData([]);
+        }
       } catch (err) {
         setError('Error fetching traffic data');
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
@@ -111,7 +109,7 @@ const Traffic = () => {
 
       <Grid container spacing={3}>
         {/* Current Traffic Status */}
-        <Grid item xs={12} md={4}>
+        <Grid>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -138,7 +136,7 @@ const Traffic = () => {
         </Grid>
 
         {/* Traffic Metrics */}
-        <Grid item xs={12} md={8}>
+        <Grid>
           <Grid container spacing={2}>
             {trafficData && [
               { label: 'Average Speed', value: trafficData.averageSpeed, unit: 'km/h' },
@@ -159,7 +157,7 @@ const Traffic = () => {
         </Grid>
 
         {/* Historical Data Chart */}
-        <Grid item xs={12}>
+        <Grid>
           <Paper sx={{ p: 2, width: 500 }}>
             <Typography variant="h6" gutterBottom>
               Traffic Trends (24 Hours)
@@ -195,7 +193,7 @@ const Traffic = () => {
       
       {/* Traffic Map - New Row, Full Width */}
       <Grid container spacing={3} sx={{ mt: 3 }}>
-        <Grid item xs={12}>
+        <Grid>
           <Paper sx={{ p: 2, height: 400, width: 800, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <Typography variant="h6" gutterBottom>
               Traffic Map

@@ -20,6 +20,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
+import axios from 'axios';
 
 const AirQuality = () => {
   const [airQualityData, setAirQualityData] = useState(null);
@@ -28,31 +29,29 @@ const AirQuality = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Use mock data instead of API calls
-    setLoading(true);
-    setError('');
-    setTimeout(() => {
-      setAirQualityData({
-        aqi: 82,
-        pm25: 35,
-        pm10: 60,
-        o3: 22,
-        no2: 18,
-        so2: 5,
-        co: 0.7,
-        timestamp: new Date().toISOString(),
-      });
-      setHistoricalData([
-        { timestamp: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(), aqi: 75, pm25: 30, pm10: 55 },
-        { timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), aqi: 80, pm25: 32, pm10: 58 },
-        { timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), aqi: 85, pm25: 36, pm10: 62 },
-        { timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), aqi: 90, pm25: 40, pm10: 65 },
-        { timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), aqi: 88, pm25: 38, pm10: 63 },
-        { timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), aqi: 84, pm25: 36, pm10: 61 },
-        { timestamp: new Date().toISOString(), aqi: 82, pm25: 35, pm10: 60 },
-      ]);
-      setLoading(false);
-    }, 500);
+    const fetchAirQuality = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        // Example coordinates for Bengaluru
+        const lat = 12.9716;
+        const lng = 77.5946;
+        const apiUrl = process.env.REACT_APP_API_URL || 'https://urban-sustainability-dashboard.onrender.com';
+        // Fetch current air quality
+        const currentRes = await axios.get(`${apiUrl}/api/airQuality/location?lat=${lat}&lng=${lng}`);
+        setAirQualityData(currentRes.data);
+        // Fetch historical data (last 7 days)
+        const startDate = new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString();
+        const endDate = new Date().toISOString();
+        const historyRes = await axios.get(`${apiUrl}/api/airQuality/history?lat=${lat}&lng=${lng}&startDate=${startDate}&endDate=${endDate}`);
+        setHistoricalData(historyRes.data);
+      } catch (err) {
+        setError('Failed to fetch air quality data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAirQuality();
   }, []);
 
   const getAQIColor = (aqi) => {
@@ -97,7 +96,7 @@ const AirQuality = () => {
 
       <Grid container spacing={3} alignItems="stretch">
         {/* Current Air Quality Card */}
-        <Grid item xs={12} md={4} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <Grid sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
           <Card sx={{ height: '100%', minHeight: 220, maxHeight: 260, display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%' }}>
             <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
               <Typography variant="h6" gutterBottom>
@@ -124,7 +123,7 @@ const AirQuality = () => {
         </Grid>
 
         {/* Air Quality Parameters */}
-        <Grid item xs={12} md={8} sx={{ display: 'flex', flexDirection: 'column', ml: { md: 3 }, mt: { xs: 3, md: 0 } }}>
+        <Grid sx={{ display: 'flex', flexDirection: 'column', ml: { md: 3 }, mt: { xs: 3, md: 0 } }}>
           <Grid container spacing={2} sx={{ height: '100%',width:800}}>
             {airQualityData && [
               { label: 'PM2.5', value: airQualityData.pm25, unit: 'μg/m³' },
@@ -151,7 +150,7 @@ const AirQuality = () => {
 
       {/* Historical Data Chart - new row, full width */}
       <Grid container spacing={3} sx={{ mt: 0 }}>
-        <Grid item xs={12} sx={{ display: 'flex', flexDirection: 'column' }}>
+        <Grid sx={{ display: 'flex', flexDirection: 'column' }}>
           <Paper sx={{ p: 4,width:600, height: '100%', display: 'flex', flexDirection: 'column', m: 3 }}>
             <Typography variant="h6" gutterBottom>
               Air Quality Trend (7 Days)
@@ -199,7 +198,7 @@ const AirQuality = () => {
       </Grid>
 
       {/* Air Quality Map */}
-      <Grid item xs={12} sx={{ mt: 3 }}>
+      <Grid sx={{ mt: 3 }}>
         <Paper sx={{ p: 2, height: 400 }}>
           <Typography variant="h6" gutterBottom>
             Air Quality Map

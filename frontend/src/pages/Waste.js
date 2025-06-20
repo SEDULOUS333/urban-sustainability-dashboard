@@ -27,6 +27,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import RecyclingIcon from '@mui/icons-material/Recycling';
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import DryIcon from '@mui/icons-material/Dry';
+import axios from 'axios';
 
 const Waste = () => {
   const [wasteData, setWasteData] = useState(null);
@@ -34,25 +35,24 @@ const Waste = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Mock data for demonstration
-    const mockWasteData = {
-      totalWaste: 2500, // tons
-      recycledWaste: 1200, // tons
-      wetWaste: 1000, // tons
-      dryWaste: 1500, // tons
-      recyclingRate: 48, // percentage
-      monthlyTrend: [
-        { month: 'Jan', total: 2400, recycled: 1100 },
-        { month: 'Feb', total: 2300, recycled: 1150 },
-        { month: 'Mar', total: 2500, recycled: 1200 },
-        { month: 'Apr', total: 2600, recycled: 1300 },
-        { month: 'May', total: 2450, recycled: 1250 },
-        { month: 'Jun', total: 2500, recycled: 1200 },
-      ],
+    const fetchData = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const apiUrl = process.env.REACT_APP_API_URL || 'https://urban-sustainability-dashboard.onrender.com';
+        const res = await axios.get(`${apiUrl}/api/waste`);
+        if (res.data && res.data.length > 0) {
+          setWasteData(res.data[0]);
+        } else {
+          setWasteData(null);
+        }
+      } catch (err) {
+        setError('Error fetching waste data');
+      } finally {
+        setLoading(false);
+      }
     };
-
-    setWasteData(mockWasteData);
-    setLoading(false);
+    fetchData();
   }, []);
 
   const pieData = [
@@ -86,7 +86,7 @@ const Waste = () => {
 
       <Grid container spacing={3}>
         {/* Total Waste Generated */}
-        <Grid item xs={12} md={6} lg={3}>
+        <Grid>
           <Card>
             <CardContent>
               <Stack direction="row" alignItems="center" spacing={2}>
@@ -108,7 +108,7 @@ const Waste = () => {
         </Grid>
 
         {/* Recycled Waste */}
-        <Grid item xs={12} md={6} lg={3}>
+        <Grid>
           <Card>
             <CardContent>
               <Stack direction="row" alignItems="center" spacing={2}>
@@ -130,7 +130,7 @@ const Waste = () => {
         </Grid>
 
         {/* Wet Waste */}
-        <Grid item xs={12} md={6} lg={3}>
+        <Grid>
           <Card>
             <CardContent>
               <Stack direction="row" alignItems="center" spacing={2}>
@@ -152,7 +152,7 @@ const Waste = () => {
         </Grid>
 
         {/* Dry Waste */}
-        <Grid item xs={12} md={6} lg={3}>
+        <Grid>
           <Card>
             <CardContent>
               <Stack direction="row" alignItems="center" spacing={2}>
@@ -174,7 +174,7 @@ const Waste = () => {
         </Grid>
 
         {/* Waste Distribution Chart */}
-        <Grid item xs={12} md={6}>
+        <Grid>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               Waste Distribution
@@ -205,7 +205,7 @@ const Waste = () => {
         </Grid>
 
         {/* Monthly Trend Chart */}
-        <Grid item xs={12} md={6}>
+        <Grid>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               Monthly Waste Trends

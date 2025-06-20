@@ -32,36 +32,28 @@ const Energy = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+      setError('');
       try {
-        // Mock data for demonstration
-        const mockEnergyData = {
-          totalConsumption: 1250,
-          renewablePercentage: 35,
-          peakHours: 3,
-          timestamp: new Date().toISOString(),
-          sources: [
-            { name: 'Solar', value: 30 },
-            { name: 'Wind', value: 25 },
-            { name: 'Hydro', value: 15 },
-            { name: 'Non-Renewable', value: 30 },
-          ],
-        };
-
-        const mockHistoricalData = Array.from({ length: 24 }, (_, i) => ({
-          time: `${i}:00`,
-          consumption: Math.floor(Math.random() * 1000) + 500,
-          renewable: Math.floor(Math.random() * 50),
-        }));
-
-        setEnergyData(mockEnergyData);
-        setHistoricalData(mockHistoricalData);
+        const apiUrl = process.env.REACT_APP_API_URL || 'https://urban-sustainability-dashboard.onrender.com';
+        const res = await axios.get(`${apiUrl}/api/energy`);
+        if (res.data && res.data.length > 0) {
+          setEnergyData(res.data[0]);
+          setHistoricalData(res.data.map(e => ({
+            time: new Date(e.timestamp).toLocaleTimeString(),
+            consumption: e.consumption,
+            renewable: e.source === 'solar' || e.source === 'wind' || e.source === 'hydro' ? e.consumption : 0
+          })));
+        } else {
+          setEnergyData(null);
+          setHistoricalData([]);
+        }
       } catch (err) {
         setError('Error fetching energy data');
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
@@ -91,7 +83,7 @@ const Energy = () => {
 
       <Grid container spacing={3}>
         {/* Current Energy Status */}
-        <Grid item xs={12} md={4}>
+        <Grid>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -115,28 +107,26 @@ const Energy = () => {
         </Grid>
 
         {/* Energy Metrics */}
-        <Grid item xs={12} md={8}>
-          <Grid container spacing={2}>
-            {energyData && [
-              { label: 'Renewable Energy', value: energyData.renewablePercentage, unit: '%' },
-              { label: 'Peak Hours', value: energyData.peakHours, unit: 'hours' },
-            ].map((metric) => (
-              <Grid item xs={6} key={metric.label}>
-                <Paper sx={{ p: 2, textAlign: 'center' }}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    {metric.label}
-                  </Typography>
-                  <Typography variant="h6">
-                    {metric.value} {metric.unit}
-                  </Typography>
-                </Paper>
-              </Grid>
-            ))}
-          </Grid>
+        <Grid container spacing={2}>
+          {energyData && [
+            { label: 'Renewable Energy', value: energyData.renewablePercentage, unit: '%' },
+            { label: 'Peak Hours', value: energyData.peakHours, unit: 'hours' },
+          ].map((metric) => (
+            <Grid item xs={6} key={metric.label}>
+              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="subtitle2" color="text.secondary">
+                  {metric.label}
+                </Typography>
+                <Typography variant="h6">
+                  {metric.value} {metric.unit}
+                </Typography>
+              </Paper>
+            </Grid>
+          ))}
         </Grid>
 
         {/* Energy Source Distribution */}
-        <Grid item xs={12} md={6}>
+        <Grid>
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>
               Energy Source Distribution
@@ -164,7 +154,7 @@ const Energy = () => {
         </Grid>
 
         {/* Historical Data Chart */}
-        <Grid item xs={12} md={6}>
+        <Grid>
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>
               Energy Consumption Trend (24 Hours)
@@ -197,7 +187,7 @@ const Energy = () => {
         </Grid>
 
         {/* Energy Saving Tips */}
-        <Grid item xs={12}>
+        <Grid>
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>
               Energy Saving Tips
