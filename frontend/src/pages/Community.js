@@ -9,9 +9,11 @@ const Community = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const apiUrl = process.env.REACT_APP_API_URL || "https://urban-sustainability-dashboard.onrender.com";
+
   const fetchPosts = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/community');
+      const response = await axios.get(`${apiUrl}/api/community`);
       setPosts(response.data);
     } catch (err) {
       console.error('Error fetching community posts:', err);
@@ -40,7 +42,7 @@ const Community = () => {
     try {
       console.log('Sending message with token:', token);
       const response = await axios.post(
-        'http://localhost:5000/api/community',
+        `${apiUrl}/api/community`,
         { message: message.trim() },
         {
           headers: {
