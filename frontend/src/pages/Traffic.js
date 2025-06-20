@@ -23,7 +23,6 @@ import {
 } from 'recharts';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import axios from 'axios';
 
 const highTrafficRoute = [
   [12.9716, 77.5946], // Bangalore center - Example
@@ -45,30 +44,25 @@ const Traffic = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const apiUrl = process.env.REACT_APP_API_URL || 'https://urban-sustainability-dashboard.onrender.com';
-        const res = await axios.get(`${apiUrl}/api/traffic`);
-        if (res.data && res.data.length > 0) {
-          setTrafficData(res.data[0]);
-          setHistoricalData(res.data.map(t => ({
-            time: new Date(t.timestamp).toLocaleTimeString(),
-            congestion: t.congestionLevel,
-            averageSpeed: t.vehicleCount // or another field if available
-          })));
-        } else {
-          setTrafficData(null);
-          setHistoricalData([]);
-        }
-      } catch (err) {
-        setError('Error fetching traffic data');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    // Mock data for demonstration
+    setLoading(true);
+    setError('');
+    setTimeout(() => {
+      const mockTrafficData = {
+        congestion: 65,
+        averageSpeed: 35,
+        incidents: 3,
+        timestamp: new Date().toISOString(),
+      };
+      const mockHistoricalData = Array.from({ length: 24 }, (_, i) => ({
+        time: `${i}:00`,
+        congestion: Math.floor(Math.random() * 100),
+        averageSpeed: Math.floor(Math.random() * 60) + 20,
+      }));
+      setTrafficData(mockTrafficData);
+      setHistoricalData(mockHistoricalData);
+      setLoading(false);
+    }, 500);
   }, []);
 
   const getCongestionColor = (congestion) => {

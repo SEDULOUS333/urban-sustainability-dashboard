@@ -27,7 +27,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import RecyclingIcon from '@mui/icons-material/Recycling';
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import DryIcon from '@mui/icons-material/Dry';
-import axios from 'axios';
 
 const Waste = () => {
   const [wasteData, setWasteData] = useState(null);
@@ -35,24 +34,28 @@ const Waste = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const apiUrl = process.env.REACT_APP_API_URL || 'https://urban-sustainability-dashboard.onrender.com';
-        const res = await axios.get(`${apiUrl}/api/waste`);
-        if (res.data && res.data.length > 0) {
-          setWasteData(res.data[0]);
-        } else {
-          setWasteData(null);
-        }
-      } catch (err) {
-        setError('Error fetching waste data');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    // Mock data for demonstration
+    setLoading(true);
+    setError('');
+    setTimeout(() => {
+      const mockWasteData = {
+        totalWaste: 2500, // tons
+        recycledWaste: 1200, // tons
+        wetWaste: 1000, // tons
+        dryWaste: 1500, // tons
+        recyclingRate: 48, // percentage
+        monthlyTrend: [
+          { month: 'Jan', total: 2400, recycled: 1100 },
+          { month: 'Feb', total: 2300, recycled: 1150 },
+          { month: 'Mar', total: 2500, recycled: 1200 },
+          { month: 'Apr', total: 2600, recycled: 1300 },
+          { month: 'May', total: 2450, recycled: 1250 },
+          { month: 'Jun', total: 2500, recycled: 1200 },
+        ],
+      };
+      setWasteData(mockWasteData);
+      setLoading(false);
+    }, 500);
   }, []);
 
   const pieData = [

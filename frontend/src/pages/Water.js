@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 
 const Water = () => {
@@ -7,24 +6,19 @@ const Water = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const apiUrl = process.env.REACT_APP_API_URL || 'https://urban-sustainability-dashboard.onrender.com';
-        const res = await axios.get(`${apiUrl}/api/water`);
-        if (res.data && res.data.length > 0) {
-          setWaterData(res.data[0]);
-        } else {
-          setWaterData(null);
-        }
-      } catch (err) {
-        setError('Error fetching water data');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    // Mock data for demonstration
+    setLoading(true);
+    setError('');
+    setTimeout(() => {
+      const mockWaterData = {
+        location: 'Koramangala',
+        consumption: 500,
+        quality: 85,
+        timestamp: new Date().toISOString(),
+      };
+      setWaterData(mockWaterData);
+      setLoading(false);
+    }, 500);
   }, []);
 
   return (

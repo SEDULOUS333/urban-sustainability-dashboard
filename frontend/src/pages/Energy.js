@@ -22,7 +22,6 @@ import {
   Pie,
   Cell,
 } from 'recharts';
-import axios from 'axios';
 
 const Energy = () => {
   const [energyData, setEnergyData] = useState(null);
@@ -31,30 +30,31 @@ const Energy = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const apiUrl = process.env.REACT_APP_API_URL || 'https://urban-sustainability-dashboard.onrender.com';
-        const res = await axios.get(`${apiUrl}/api/energy`);
-        if (res.data && res.data.length > 0) {
-          setEnergyData(res.data[0]);
-          setHistoricalData(res.data.map(e => ({
-            time: new Date(e.timestamp).toLocaleTimeString(),
-            consumption: e.consumption,
-            renewable: e.source === 'solar' || e.source === 'wind' || e.source === 'hydro' ? e.consumption : 0
-          })));
-        } else {
-          setEnergyData(null);
-          setHistoricalData([]);
-        }
-      } catch (err) {
-        setError('Error fetching energy data');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    // Mock data for demonstration
+    setLoading(true);
+    setError('');
+    setTimeout(() => {
+      const mockEnergyData = {
+        totalConsumption: 1250,
+        renewablePercentage: 35,
+        peakHours: 3,
+        timestamp: new Date().toISOString(),
+        sources: [
+          { name: 'Solar', value: 30 },
+          { name: 'Wind', value: 25 },
+          { name: 'Hydro', value: 15 },
+          { name: 'Non-Renewable', value: 30 },
+        ],
+      };
+      const mockHistoricalData = Array.from({ length: 24 }, (_, i) => ({
+        time: `${i}:00`,
+        consumption: Math.floor(Math.random() * 1000) + 500,
+        renewable: Math.floor(Math.random() * 50),
+      }));
+      setEnergyData(mockEnergyData);
+      setHistoricalData(mockHistoricalData);
+      setLoading(false);
+    }, 500);
   }, []);
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
